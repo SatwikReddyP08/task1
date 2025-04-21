@@ -1,0 +1,53 @@
+import pandas as pd
+
+df=pd.read_csv('/content/amazon.csv')
+
+print(df.head())
+
+df.isnull().sum()
+
+df = df.dropna(subset=['rating_count'])
+
+df.duplicated().sum()
+
+no duplicate vaues
+
+print(df.dtypes)
+
+print(df['discounted_price'].unique()[:10])
+print(df['actual_price'].unique()[:10])
+print(df['discount_percentage'].unique()[:10])
+print(df['rating'].unique()[:10])
+print(df['rating_count'].unique()[:10])
+
+# Remove ₹ and commas, then convert to float
+df['discounted_price'] = df['discounted_price'].str.replace('₹', '').str.replace(',', '').astype(float)
+df['actual_price'] = df['actual_price'].str.replace('₹', '').str.replace(',', '').astype(float)
+
+# Remove % and convert to float
+df['discount_percentage'] = df['discount_percentage'].str.replace('%', '').astype(float)
+
+# Clean the 'rating' column to remove any invalid characters
+df['rating'] = df['rating'].str.replace('[^\d\.]', '', regex=True)
+
+# Check for empty strings in the rating column after the replacement
+df['rating'].isna().sum(), (df['rating'] == '').sum()
+
+df['rating'] = df['rating'].replace('', float('nan'))
+
+df['rating'] = df['rating'].astype(float)
+
+# Fill missing values with the mean rating
+df['rating'] = df['rating'].fillna(df['rating'].mean())
+
+# Check for remaining missing values
+df['rating'].isna().sum()
+
+df['rating_count'] = df['rating_count'].astype(str).str.replace(',', '').astype(int)
+
+print(df.isnull().sum())
+
+# Convert the cleaned DataFrame to a CSV file
+df.to_csv('cleaned_dataset.csv', index=False)
+
+
